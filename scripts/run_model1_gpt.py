@@ -22,6 +22,7 @@ messages = [
     {"role": "assistant", "content": "The capital of France is Paris."},
     {"role": "user", "content": "Tell me about Germany."}
 ]
+
 # Eingabe tokenisieren und Padding aktivieren
 input_ids = tokenizer.apply_chat_template(
     messages, 
