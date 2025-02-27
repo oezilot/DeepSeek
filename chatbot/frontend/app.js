@@ -13,11 +13,15 @@ function send_promt_to_backend(promt_string) {
     })
 }
 
+function get_response_from_backend() {
+    fetch()
+}
+
 // diese funktion zeigt deine anfreage an den bot im chatverlauf an:
 function user() {
     // display the user_input in the chat-box
     input_value = document.getElementById("user").innerHTML += "<br>" + user_input.value + "<br>";
     // sende den gesammelten input des users an das python backend
-    send_promt_to_backend(user_input.value.trim());
+    //send_promt_to_backend(user_input.value.trim());
 }
 submit_button.addEventListener("click", user)
