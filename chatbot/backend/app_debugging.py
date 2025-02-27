@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, jsonify
 
 
 # variablen
@@ -32,6 +32,24 @@ def receive_user_input():
     return chat_history
 
 
+# nachricht versenden
+@app.route("/response", methods=['GET'])
+def send_bot_output():
+
+    global chat_history
+
+    # die antwort wird so konstruiert dass sie immer 2 XX vor und hinter den user-input macht
+    bot_output = f"XX{chat_history[-1]["user_input"]}XX"
+    # bot-rsponse der history hinzufügen
+    chat_history[-1]["bot_output"] = bot_output
+
+    # der letzte output-wert printen
+    print(f"Der Bot antwortet: {chat_history[-1]["bot_output"]}")
+    # die gesamte histoy printen
+    print(f"Chat-History: {chat_history}")
+
+    # das return geht dann zum browser wo javascript es abholen kann
+    return jsonify(chat_history[-1]["bot_output"]) # den string in ein json-onjekt verwandeln damit es javaskript versteht
  
 
 if __name__ == '__main__':
