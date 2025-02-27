@@ -1,10 +1,17 @@
 // this documents sends the frontendcode to the backend and does button-functionality and stuff
 
-// this variable hold the sting that the user gave as a promt
+// ----------------- VARIABLES ----------------
+
+// this variable holds the string that the user gave as a promt
 var user_input = document.getElementById("user_input");
+
+// this variable represents the send-message-button
 var submit_button = document.getElementById("submit");
 
-// diese funktion sendet den userinput zu backend
+
+// ----------------- FUNKTIONS ----------------
+
+// diese funktion sendet den userinput zum backend
 function send_promt_to_backend(promt_string) {
     fetch("http://127.0.0.1:5001/submit", {
         method: "POST",
@@ -13,15 +20,19 @@ function send_promt_to_backend(promt_string) {
     })
 }
 
-function get_response_from_backend() {
-    fetch()
+// diese funktion stellt den input des users sofort dar auf dem html dar (onclick-event)
+function display_user_input() {
+    input_value = document.getElementById("user").innerHTML += "<br>" + user_input.value + "<br>";
+}
+submit_button.addEventListener("click", display_user_input)
+
+// diese funktion wartet auf eine antwort und holt die antwort des bots vom backend sobald diese eingetroffen ist
+async function get_response_from_backend() {
+    let response = await fetch("http://127.0.0.1:5001/response");
+    let response_data = await response.json();
+    console.log(response);
+    return response_data;
 }
 
-// diese funktion zeigt deine anfreage an den bot im chatverlauf an:
-function user() {
-    // display the user_input in the chat-box
-    input_value = document.getElementById("user").innerHTML += "<br>" + user_input.value + "<br>";
-    // sende den gesammelten input des users an das python backend
-    //send_promt_to_backend(user_input.value.trim());
-}
-submit_button.addEventListener("click", user)
+// diese funktion stellt die erhaltene information des backends dar sobald diese eingetroffen ist
+var bot_history = document.getElementById("bot").innerHTML += "<br>" + get_response_from_backend() + "<br>";

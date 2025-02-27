@@ -18,7 +18,7 @@
         <p id="user">User Asks:</p>
         <p id="bot">Bot replies:</p>
     <script>
-// this documents sends the frontendcode to the backend and does button-functionality and stuff
+
 
 // ----------------- VARIABLES ----------------
 
@@ -36,25 +36,17 @@ function send_promt_to_backend(promt_string) {
     fetch("http://127.0.0.1:5001/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: promt_string
+        body: JSON.stringify({ message: promt_string })  // ✅ Sendet korrektes JSON
     })
 }
 
 // diese funktion stellt den input des users sofort dar auf dem html dar (onclick-event)
-function display_user_input() {
+function collect_user_input() {
     input_value = document.getElementById("user").innerHTML += "<br>" + user_input.value + "<br>";
+    send_promt_to_backend(user_input.value)
 }
-submit_button.addEventListener("click", display_user_input)
+submit_button.addEventListener("click", collect_user_input)
 
-// diese funktion wartet auf eine antwort und holt die antwort des bots vom backend sobald diese eingetroffen ist
-async function get_response_from_backend() {
-    let response = await fetch("http://127.0.0.1:5001/response");
-    let response_data = await response.json();
-    console.log(response);
-    return response_data;
-}
 
-// diese funktion stellt die erhaltene information des backends dar sobald diese eingetroffen ist
-var bot_history = document.getElementById("bot").innerHTML += "<br>" + get_response_from_backend() + "<br>";
     </script>
 </html>
