@@ -2,7 +2,7 @@ import sys
 sys.path.append("/home/zoe/Projects/DeepSeek/chatbot/backend")
 from run_model import generate_response_to_input, load_model_essentials
 
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, jsonify
 
 
 app = Flask(__name__, static_folder="/home/zoe/Projects/DeepSeek/chatbot/frontend")
@@ -18,38 +18,44 @@ def serve_html():
     return send_from_directory(app.static_folder, "app.html") # bei flask muss es immer ein return haben
 
 
-# diese funktion wird nur aufgeruefen wenn eine post-methode auf /submit ausgeführt wurde!
+# nachricht erhalten
 @app.route("/submit", methods=['POST'])
 def receive_user_input():
 
     global chat_history
 
-    # der userinput bekommt über das html/javascript über eine post-request
+    # der userinput kommt über das html/javascript über eine post-request
     user_data = request.get_json()
     user_data_string = user_data['message']
-    chat_history.append({"user_input" : user_data_string, "bot_output" : None})
-    print(chat_history)
-    print(f"Der User Fragt: {user_data_string}")
+    # den neusten inputwert dem chatverlauf hinzufügen, output vorerst mal none setzen
+    chat_history.append({"user_input":user_data_string, "bot_output":None})
+    # der letzte input-wert printen
+    print(f"Der User Fragt: {chat_history[-1]["user_input"]}")
+    # die gesamte histoy printen
+    print(f"Chat-History: {chat_history}")
 
     # das return geht dann zum browser wo javascript es abholen kann
-    return ""
-    
+    return chat_history
 
+
+# nachricht versenden
 @app.route("/response", methods=['GET'])
-def generate_response():
+def send_bot_output():
 
     global chat_history
-    last_index = len(chat_history)-1
 
-    # die response wird von einem internen python skript generiert und an javascript/html geschickt
-    response = generate_response_to_input(chat_history[-1]["user_input"])
-    # die response des bots dem chatverlauf hinzufügen
-    chat_history[-1]["bot_output"] = response
-    print(f"Der Bot antwortet: {response}")
+    # die antwort wird so konstruiert dass sie immer 2 XX vor und hinter den user-input macht
+    bot_output = generate_response_to_input(chat_history[-1]["user_input"])
+    # bot-rsponse der history hinzufügen
+    chat_history[-1]["bot_output"] = bot_output
 
-    return jsonify({"response": response})
+    # der letzte output-wert printen
+    print(f"Der Bot antwortet: {chat_history[-1]["bot_output"]}")
+    # die gesamte histoy printen
+    print(f"Chat-History: {chat_history}")
 
-
+    # das return geht dann zum browser wo javascript es abholen kann
+    return jsonify(chat_history[-1]["bot_output"]) # den string in ein json-onjekt verwandeln damit es javaskript versteht
 
 
 if __name__ == '__main__':
