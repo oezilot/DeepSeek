@@ -1,0 +1,42 @@
+<!-- this document is used to display the chat -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+</head>
+<body>
+    <h1>Chatte mit dem OziBot <3</h1>
+    <label for="user_input">Ask me something:</label>
+    <input type="text" id="user_input"></body>
+    <button id="submit">Send</button>
+    <div id="chat-box">
+    </div>
+        <p id="user">User Asks:</p>
+        <p id="bot">Bot replies:</p>
+    <script>
+        var user_input = document.getElementById("user_input");
+var submit_button = document.getElementById("submit");
+
+// diese funktion sendet den userinput zu backend
+function send_promt_to_backend(promt_string) {
+    fetch("http://127.0.0.1:5001/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: promt_string })
+    })
+}
+
+// diese funktion zeigt deine anfreage an den bot im chatverlauf an:
+function user() {
+    // display the user_input in the chat-box
+    input_value = document.getElementById("user").innerHTML += "<br>" + user_input.value + "<br>";
+    // sende den gesammelten input des users an das python backend
+    send_promt_to_backend(user_input.value.trim());
+}
+submit_button.addEventListener("click", user)
+    </script>
+</html>

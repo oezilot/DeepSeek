@@ -12,6 +12,7 @@
 
 ### Quellen
 - https://github.com/chroma-core/chroma 
+- js und html: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
 
 ### Bedeutung der Files
 - config.json = modelarchitektur wird definiert (anzahl layers etc)
