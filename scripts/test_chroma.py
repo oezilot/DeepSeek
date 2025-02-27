@@ -1,4 +1,5 @@
-# most simple version: für irgendeien string den ich als input gebe sucht die chramadb die passende collection die am meisten mit meiner anfrage zu tun hat!
+# most simple version: für irgendeien string den ich als input gebe sucht die chramadb die passende collection die am meisten mit meiner anfrage zu tun hat und gibt diese zurück!
+# hierfür wird das chroma-modell verwendet!
 
 import chromadb
 

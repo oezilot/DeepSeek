@@ -24,6 +24,7 @@ messages = [
 ]
 
 # Eingabe tokenisieren und Padding aktivieren
+# apply_chat_template wird noch gemacht weil der inputstring in einer besonderen dictionary-fomr liegt und nicht als einfacers tring!
 input_ids = tokenizer.apply_chat_template(
     messages, 
     add_generation_prompt=True, 
