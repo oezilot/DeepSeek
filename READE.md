@@ -49,3 +49,11 @@ in diesem fall einefach die library installieren, das sollte kein problem sein!!
     ```
     pip install 'accelerate>=0.26.0'
     ```
+
+
+## My Scripts:
+In this repo you will find a couple of different scripts! I will explain their content and how to run them:
+
+1. `run_model1_gpt.py`: this skripts runs the deepseek model. in the script you define a string ehich is your promt and the terminal gives you the output the chatbot would give you
+2. `test_chroma.py`: filling the chromadatabase with the use of no embedding to find out how chroma works
+3. `app.py`: flask applikation which uses the run_model script to make a full applikation

@@ -41,4 +41,3 @@ def string_to_tensor(string):
 
 # einen tensor zusammenfassen sodass er eindimensionale ist (mean) und dass die batchgrösse entfernt wird
 #tensor_mean = string_to_tensor(input_string).mean(dim=1).squeeze()
-
