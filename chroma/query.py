@@ -1,3 +1,5 @@
+# gibt semantisch nächstgeliegenre datenpunkt zurück
+
 import chromadb
 from deepseek_embedding import string_to_tensor
 
