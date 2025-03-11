@@ -1,6 +1,8 @@
 '''
 dieses script macht lädt das model, generiert eine antwort und kommuniziert mit dem js.code des frontends
 '''
+
+
 import sys
 sys.path.append("/home/zoe/Projects/DeepSeek/chatbot/backend")
 from run_model import generate_response_to_input, load_model_essentials # funktionen impotrieren: eine antwort generieren, das model welches die antwort generiert

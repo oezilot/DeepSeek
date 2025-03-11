@@ -2,65 +2,67 @@
 dieses skript generiert eine antwort zu einem promt. die argumente sind das model und der tokenizer und eine chomadatenbank die gefüllt ist
 '''
 
-import sys
-sys.path.append("/home/zoe/Projects/DeepSeek/chroma")
-from deepseek_embedding import string_to_tensor
+
+#import sys
+#sys.path.append("/home/zoe/Projects/DeepSeek/scripts")
 
 import chromadb
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
-
-MODEL_PATH = "/home/zoe/Projects/DeepSeek/deepseek-llm-7b-chat" # hier befindet sich das model (weights, biases, dimensionen, alphabet, andere konfigs)
-tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH) # den tokenizer konfigurieren basierend des alphabets des modells (je nach model werden strings anders tokenisiert)
-model = AutoModelForCausalLM.from_pretrained( # das model wird geladen (es wird ein Pytorch-modell erstellt mit den informationen aus dem config.js und den weights/biases)
-    MODEL_PATH, torch_dtype=torch.bfloat16, device_map="auto"
-)
-
-# diese funktion sucht nach dem datenpunkt mit den meisten ähnlichkeiten
-def find_query_match(query_text, model, n_results):
-
-    # promt in einen vektor verwandeln
-    query_vector = string_to_tensor(query_text, model, tokenizer).mean(dim=1).squeeze().tolist()
-
-    # einen match in der datenbank suchen (kürzeste distanz) -> es gibt die zeile der tabelle mit den metadaten zurück die am ähnlichsten ist zum promt
-    query_match = collection.query(query_embeddings=[query_vector], n_results=n_results)
-
-    # falls es keinen match gibt
-    if not query_match["documents"]:
-        return "Ich konnte leider keine relevante Information finden."
-
-    return query_match
+#from embedding import string_to_tensor
+#import run # dieses file lässt das model laufen und importiet den tokenizer, das modell als modul (run.modulname um es zu benutzen)
 
 
-# diese funktion generiert mit einem model und einem tokenizer eine antwort
-def generate_response(query_text, model, tokenizer, n_results=1):   
 
-    data = find_query_match(query_text, model, n_results)
+''' for testing
+# Verbindung zur bestehenden ChromaDB-Datenbank
+client = chromadb.PersistentClient(path="/home/zoe/Projects/DeepSeek/knowledgebases")
+collection = client.get_or_create_collection("Geschichten") # wenn man die cellection gettet oder kreiert muss man immer de embeddingfunktione angeben! -> client.get_collection(name="my_collection", embedding_function=emb_fn)
 
-    # 🔹 Relevante Informationen aus ChromaDB abrufen (aus der sqlite datenbank)
-    metadata = query_results["metadatas"][0][0]  # Die zugehörigen Metadaten
-    title = metadata.get("title", "Unbekannte Geschichte")  # Titel abrufen
-    text = metadata.get("content", "Unbekannte Geschichte") # den text abrufen
+# Suchanfrage als Vektor umwandeln
+query_text = "We heisst der Frosch?"
+query_vector = string_to_tensor(query_text, run.model, run.tokenizer).mean(dim=1).squeeze().tolist()
+'''
 
-    # 🔹 Nachrichten-Format für den DeepSeek-Prompt
+def find_chroma_match(query_vector, collection):
+
+    # Suche nach ähnlichen Einträgen, zurück komt die gesamte collection mit den daten die am ähnlichsten sind
+    query_results = collection.query(
+        query_embeddings=[query_vector], # man sucht in der datenbank den vektor welcher am ähnlichsten ist wie der query_vector
+        n_results=1,  # Zwei ähnlichste Geschichten finden
+        include = ["embeddings", "metadatas", "distances"]
+    )
+
+    # Ergebnis ausgeben
+    print("🔍 Suchergebnisse:", query_results)
+
+    return query_results
+
+
+def generate_response(query_text, model, tokenizer, query_results):
+
+    # die relevanten informationen aus den query-resukts herausnehmen
+    metadata = query_results["metadatas"][0][0] # das muss man machen weil der output eine liste von listen von dictonariey ist (die gesamte collection) aber nur ein einziges dictionary drin ist!
+    title = metadata["title"]
+    content = metadata["content"]
+
+    # deepseek muss nun schlau auf die frage antworten mit den daten aus der chromadb
     messages = [
         {"role": "system", "content": "Du bist ein hilfreicher KI-Assistent, der Fragen anhand von Hintergrundwissen beantwortet."},
-        {"role": "user", "content": f"Hier ist eine relevante Geschichte:\n\nTitel: {title}\n\nInhalt: {text}\n\nNutze diese Information, um die folgende Frage möglichst schön und ausführlich zu beantworten."},
+        {"role": "user", "content": f"Hier ist eine relevante Geschichte:\n\nTitel: {title}\n\nInhalt: {content}\n\nNutze diese Information, um die folgende Frage möglichst schön und ausführlich zu beantworten."},
         {"role": "user", "content": f"Frage: {query_text}"},
     ]
 
-    input_ids = tokenizer.apply_chat_template(messages, return_tensors="pt").to(model.device) # den promt für deepseek in tokenform bringen
-    
-    # 🔹 DeepSeek generiert eine Antwort
+    # den promt für deepseek in tokenform bringen
+    input_tokens = tokenizer.apply_chat_template(messages, return_tensors="pt").to(model.device) # den promt für deepseek in tokenform bringen
+
+    # eine antwort generieren mit deepseek
     with torch.no_grad():
-        output = model.generate(input_ids, max_new_tokens=200)  # Antwort generieren
+        output = model.generate(input_tokens, max_new_tokens=200)  # Antwort generieren
 
-    # 🔹 Antwort dekodieren und ausgeben
-    answer = tokenizer.decode(output[0], skip_special_tokens=True)
+    # die generierte antwort dekodieren
+    answer = tokenizer.decode(output[0], skip_special_tokens=True).split("Antwort: ")[1].strip()
+
+    print(answer)
+
     return answer
-
-# 📌 Beispielaufruf der Funktion
-frage = "Wie heißt der Rock Frosch?"
-antwort = generate_response(frage, model, tokenizer)
-print("🤖 DeepSeek Antwort:", antwort)

@@ -1,3 +1,7 @@
+'''
+dieses skript testet nur ob das mit der kommunikation zwischen frontend und backend funktioniert! app.py ist das richtige wo auch eine antwort des chat-botd kommt und nicht etwas erfundenen
+'''
+
 from flask import Flask, request, send_from_directory, jsonify
 
 

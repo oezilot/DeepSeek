@@ -2,4 +2,4 @@
 /deepseek-llm-7b-chat
 /datasets
 /knowledgebases
-*__pycache__
+**/__pycache__/

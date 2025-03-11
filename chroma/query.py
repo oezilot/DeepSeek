@@ -20,13 +20,14 @@ client = chromadb.PersistentClient(path="/home/zoe/Projects/DeepSeek/knowledgeba
 collection = client.get_or_create_collection("Geschichten") # wenn man die cellection gettet oder kreiert muss man immer de embeddingfunktione angeben! -> client.get_collection(name="my_collection", embedding_function=emb_fn)
 
 # Suchanfrage als Vektor umwandeln
-query_text = "Frosch"
+query_text = "Prinz"
 query_vector = string_to_tensor(query_text, run.model, run.tokenizer).mean(dim=1).squeeze().tolist()
 
-# Suche nach ähnlichen Einträgen
+# Suche nach ähnlichen Einträgen, zurück komt die gesamte collection mit den daten die am ähnlichsten sind
 query_results = collection.query(
     query_embeddings=[query_vector], # man sucht in der datenbank den vektor welcher am ähnlichsten ist wie der query_vector
-    n_results=1  # Zwei ähnlichste Geschichten finden
+    n_results=1,  # Zwei ähnlichste Geschichten finden
+    include = ["embeddings", "metadatas", "distances"]
 )
 
 # Ergebnis ausgeben

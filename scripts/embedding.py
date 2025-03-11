@@ -31,7 +31,7 @@ def string_to_tensor(string, model, tokenizer):
     #print(f"Shape: {hidden_states[-1].shape}")
 
     # der zusammengefasste vektor wäre:
-    print(f"Zusammengefasster Vektor für chromaDB: {last_tensor.mean(dim=1).squeeze().tolist()}") # diese funktionen können nur angewendet werden wenn man es auf einen tensor-typ anwendet
+    #print(f"Zusammengefasster Vektor für chromaDB: {last_tensor.mean(dim=1).squeeze().tolist()}") # diese funktionen können nur angewendet werden wenn man es auf einen tensor-typ anwendet
 
     return last_tensor
 
