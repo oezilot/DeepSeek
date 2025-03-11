@@ -1,0 +1,1 @@
+das ist die sammlung aller chatbots. jeder chatbot hat ein individuelles backend aber dasselbe frontend!

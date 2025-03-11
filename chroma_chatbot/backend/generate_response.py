@@ -1,53 +1,50 @@
+'''
+Dieses skript generiert zu einem promt eine antwort. 
+es kann nur auf dige antworten die etwas mit den informationen in der chromadb haben antworten
+
+folgendes macht das model:
+- model initialisieren
+- verbindung zur datenbank
+- match von promt und datenbankeintrag finden
+- deepseek generiert eine antwor mit den metadaten und dem promt
+'''
+
 import sys
 sys.path.append("/home/zoe/Projects/DeepSeek/chroma")
 from deepseek_embedding import string_to_tensor
-
 
 import chromadb
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
-# 📌 Modell & Tokenizer laden
-MODEL_PATH = "/home/zoe/Projects/DeepSeek/deepseek-llm-7b-chat"
-tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-model = AutoModelForCausalLM.from_pretrained(
+# 📌 pretrained Modell & Tokenizer laden
+MODEL_PATH = "/home/zoe/Projects/DeepSeek/deepseek-llm-7b-chat" # hier befindet sich das model (weights, biases, dimensionen, alphabet, andere konfigs)
+tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH) # den tokenizer konfigurieren basierend des alphabets des modells (je nach model werden strings anders tokenisiert)
+model = AutoModelForCausalLM.from_pretrained( # das model wird geladen (es wird ein Pytorch-modell erstellt mit den informationen aus dem config.js und den weights/biases)
     MODEL_PATH, torch_dtype=torch.bfloat16, device_map="auto"
 )
 
-# 📌 Verbindung zur ChromaDB-Datenbank
+# 📌 Verbindung zur ChromaDB-Datenbank herstellen die bereits gefüllt ist mit den embeddings
 client = chromadb.PersistentClient(path="/home/zoe/Projects/DeepSeek/knowledgebases")
 collection = client.get_or_create_collection("Geschichten")
 
-
 def deepseek_answer(query_text, n_results=1):
-    """
-    Nutzt ChromaDB, um den relevantesten Eintrag für die Anfrage zu finden,
-    und gibt dann eine schön formulierte Antwort mithilfe von DeepSeek aus.
 
-    Args:
-        query_text (str): Die Eingabe-Frage.
-        n_results (int): Anzahl der zurückzugebenden Ergebnisse aus ChromaDB.
+    query_vector = string_to_tensor(query_text).mean(dim=1).squeeze().tolist() # mit deepseek aus einem string einen semantischen vektor generieren
 
-    Returns:
-        str: Eine schön formulierte Antwort von DeepSeek.
-    """
-
-    query_vector = string_to_tensor(query_text).mean(dim=1).squeeze().tolist()
-
-    # 🔹 ChromaDB nach der semantisch ähnlichsten Geschichte durchsuchen
-    query_results = collection.query(
+    query_results = collection.query( # chromadb nach dem semantisch ähnlichsten vektor durchsuchen
         query_embeddings=[query_vector],  
-        n_results=n_results  # Anzahl der relevantesten Ergebnisse
+        n_results=n_results  # Anzahl der relevantesten Ergebnisse (in diesem fall nur eine geschihte und zwar die ähnlichte zurück geben)
     )
 
     # 🔹 Falls keine Ergebnisse gefunden wurden
     if not query_results["documents"]:
         return "Ich konnte leider keine relevante Information finden."
 
-    # 🔹 Relevante Informationen aus ChromaDB abrufen
+    # 🔹 Relevante Informationen aus ChromaDB abrufen (aus der sqlite datenbank)
     metadata = query_results["metadatas"][0][0]  # Die zugehörigen Metadaten
     title = metadata.get("title", "Unbekannte Geschichte")  # Titel abrufen
-    text = metadata.get("content", "Unbekannte Geschichte")
+    text = metadata.get("content", "Unbekannte Geschichte") # den text abrufen
 
     # 🔹 Nachrichten-Format für den DeepSeek-Prompt
     messages = [
@@ -56,8 +53,7 @@ def deepseek_answer(query_text, n_results=1):
         {"role": "user", "content": f"Frage: {query_text}"},
     ]
 
-    # 🔹 Tokenisierung im Chat-Format
-    input_ids = tokenizer.apply_chat_template(messages, return_tensors="pt").to(model.device)
+    input_ids = tokenizer.apply_chat_template(messages, return_tensors="pt").to(model.device) # den promt für deepseek in tokenform bringen
     
     # 🔹 DeepSeek generiert eine Antwort
     with torch.no_grad():

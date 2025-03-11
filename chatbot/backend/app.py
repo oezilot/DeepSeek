@@ -1,8 +1,11 @@
+'''
+dieses script macht lädt das model, generiert eine antwort und kommuniziert mit dem js.code des frontends
+'''
 import sys
 sys.path.append("/home/zoe/Projects/DeepSeek/chatbot/backend")
-from run_model import generate_response_to_input, load_model_essentials
+from run_model import generate_response_to_input, load_model_essentials # funktionen impotrieren: eine antwort generieren, das model welches die antwort generiert
 
-from flask import Flask, request, send_from_directory, jsonify
+from flask import Flask, request, send_from_directory, jsonify # python libraries
 
 
 app = Flask(__name__, static_folder="/home/zoe/Projects/DeepSeek/chatbot/frontend")
@@ -16,7 +19,6 @@ chat_history = []
 @app.route("/")
 def serve_html():
     return send_from_directory(app.static_folder, "app.html") # bei flask muss es immer ein return haben
-
 
 # nachricht erhalten
 @app.route("/submit", methods=['POST'])
