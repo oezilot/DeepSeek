@@ -6,13 +6,17 @@
     <title>Loading Icon ...</title>
 </head>
 <style>
+
+    .line {
+        display:flex;
+    }
+
     #loader {
-      width: 100%;
       background-color: #ddd;
     }
     
     #bar1, #bar2, #bar3, #bar4 {
-        margin: 0.3%;
+        margin: 0.9%;
         width: 30px;
         height: 30px;
     }
@@ -32,19 +36,20 @@
 </style>
 
 <body>
+    <div class="line">
+        <div id="loader">
+            <div style="display: flex;">
+                <div id="bar1"></div>
+                <div id="bar2"></div>
+            </div>
+            <div style="display: flex;">
+                <div id="bar4"></div>
+                <div id="bar3"></div>
+            </div>
+        </div>
 
-    <div id="loader">
-        <div style="display: flex;">
-            <div id="bar1"></div>
-            <div id="bar2"></div>
-        </div>
-        <div style="display: flex;">
-            <div id="bar4"></div>
-            <div id="bar3"></div>
-        </div>
+        <button id="btn">Click Me</button>
     </div>
-
-    <button id="btn">Click Me</button>
 
 <script>
 
