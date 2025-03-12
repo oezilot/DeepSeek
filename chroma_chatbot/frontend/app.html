@@ -6,18 +6,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
+    <title>Chroma Chatbot</title>
 </head>
+<style>
+    #loader {
+      background-color: #ddd;
+    }
+    
+    #bar1, #bar2, #bar3, #bar4 {
+        margin: 0.3%;
+        width: 30px;
+        height: 30px;
+    }
+    
+    #bar1 {
+        background-color: #04AA6D;
+    }
+    #bar2 {
+        background-color: #04AA6D;
+    }
+    #bar3 {
+        background-color: #04AA6D;
+    }
+    #bar4 {
+        background-color: #04AA6D;
+    }
+</style>
 <body>
-    <h1>Chatte mit dem OziBot <3</h1>
+    <!--CHATBOT-->
+    <h1>Chatte mit deinen Daten!</h1>
     <label for="user_input">Ask me something:</label>
-    <input type="text" id="user_input"></body>
+    <input type="text" id="user_input">
     <button id="submit">Send</button>
+    <!--LOADER (verseteckt)-->
+    <div id="loader" style="display:none">
+        <div style="display: flex;">
+            <div id="bar1"></div>
+            <div id="bar2"></div>
+        </div>
+        <div style="display: flex;">
+            <div id="bar4"></div>
+            <div id="bar3"></div>
+        </div>
+    </div>
     <div id="chat-box">
     </div>
         <p id="user">User Asks:</p>
         <p id="bot">Bot replies:</p>
-    <script>
+</body>
+<script>
 
 
 // ----------------- VARIABLES ----------------
@@ -41,6 +78,13 @@ function send_promt_to_backend(promt_string) {
 }
 // diese funktion wartet aus eine antwort des backends, das warten startet sobal  das frontend einen request versendet hat
 async function receive_response_from_backend() {
+    
+    // den loader als variable initialisieren und von hidden auf visible schalten
+    const loader = document.getElementById("loader");
+    loader.style.display = "block";
+    
+    rotate_colors();
+
     try {
         let response = await fetch("http://127.0.0.1:5002/response"); // Warten auf Antwort
         let data = await response.json(); // JSON verarbeiten
@@ -50,6 +94,8 @@ async function receive_response_from_backend() {
         document.getElementById("bot").innerHTML += "<br>" + data + "<br>";
     } catch (error) {
         console.error("❌ Fehler beim Abrufen der Antwort:", error);
+    } finally {
+        loader.style.display = "none";
     }
 }
 
@@ -63,7 +109,29 @@ submit_button.addEventListener("click", chat)
 
 
 // ----------------- LOADER ICON ----------------
+const bars = ["bar1", "bar2", "bar3", "bar4"];
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function rotate_colors() {
+    console.log("rotate wurde aufgerufen!")
+    while (loader.style.display == "block") {
+        for (let i = 0; i < bars.length; i++) {
+            if (loader.style.display == "none") {
+                return;
+            }
+            document.getElementById(bars[i]).style.backgroundColor = "red"; // Balken rot
+            if (i === 0) {
+                document.getElementById(bars[bars.length - 1]).style.backgroundColor = "#04AA6D"; // Letzten Balken grün
+            } else {
+                document.getElementById(bars[i - 1]).style.backgroundColor = "#04AA6D"; // Nächsten Balken grün
+            }
+            await delay(500); // Warten
+        }
+    } 
+}
 
     </script>
 </html>
