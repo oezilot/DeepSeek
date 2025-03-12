@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Icon ...</title>
+</head>
+<style>
+    #loader {
+      width: 100%;
+      background-color: #ddd;
+    }
+    
+    #bar1, #bar2, #bar3, #bar4 {
+        margin: 0.3%;
+        width: 30px;
+        height: 30px;
+    }
+    
+    #bar1 {
+        background-color: #04AA6D;
+    }
+    #bar2 {
+        background-color: #04AA6D;
+    }
+    #bar3 {
+        background-color: #04AA6D;
+    }
+    #bar4 {
+        background-color: #04AA6D;
+    }
+</style>
+
+<body>
+
+    <div id="loader">
+        <div style="display: flex;">
+            <div id="bar1"></div>
+            <div id="bar2"></div>
+        </div>
+        <div style="display: flex;">
+            <div id="bar4"></div>
+            <div id="bar3"></div>
+        </div>
+    </div>
+
+    <button id="btn">Click Me</button>
+
+<script>
+
+// dieses skript lasst das raster rotieren wenn man auf den button kickt und wennn man erneut klickt dann stoppt die rotation!
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const bars = ["bar1", "bar2", "bar3", "bar4"];
+const button = document.getElementById("btn");
+
+let button_state = 0; // 0 = off, 1 = on
+let x = 0; // Zustand der Animation
+
+// Die Funktion, die die Farben ändert
+async function rotate_colors() {
+    // Button-State ändern (toggle between 0 and 1)
+    button_state = (button_state + 1) % 2;
+
+    // Button-Text ändern je nach Zustand
+    if (button_state === 0) {
+        // Wenn off, Button Text auf "Turn On" setzen
+        button.textContent = "Turn On";
+        x = 1; // Stoppe die Animation
+        // Alle Balken auf grün setzen, bevor die Animation gestoppt wird
+        for (let i = 0; i < bars.length; i++) {
+            document.getElementById(bars[i]).style.backgroundColor = "#04AA6D";
+        }
+    } else {
+        // Wenn on, Button Text auf "Turn Off" setzen
+        button.textContent = "Turn Off";
+        x = 0; // Starte die Animation
+        // Solange x == 0, Balken rot und grün wechseln
+        while (x === 0) {
+            for (let i = 0; i < bars.length; i++) {
+                if (x!==0) {
+                return;
+                }
+                document.getElementById(bars[i]).style.backgroundColor = "red"; // Balken rot
+                if (i === 0) {
+                    document.getElementById(bars[bars.length - 1]).style.backgroundColor = "#04AA6D"; // Letzten Balken grün
+                } else {
+                    document.getElementById(bars[i - 1]).style.backgroundColor = "#04AA6D"; // Nächsten Balken grün
+                }
+                await delay(500); // Warten
+            }
+        }
+        // Wenn die Animation gestoppt wird, alle Balken auf grün setzen
+        for (let i = 0; i < bars.length; i++) {
+            document.getElementById(bars[i]).style.backgroundColor = "#04AA6D";
+        }
+    }
+}
+
+// Event Listener für den Button
+button.addEventListener("click", rotate_colors);
+
+/*
+fragen:
+- wie kann man einen while-loop beenden?
+*/
+
+</script>
+</body>
+</html>
